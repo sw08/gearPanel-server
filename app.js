@@ -13,6 +13,7 @@ function replaceCharAt(text, i, newChar) { return text.substring(0, i) + newChar
 let lastAcft = "    ";
 let newAcft = "    ";
 let profile = require(`./profiles/default.js`);
+let usingDefault = false;
 
 wsClient.gearPanel = {
     connected: false
@@ -70,11 +71,13 @@ udpClient.onMessage = (data) => {
         console.log(`new acft: ${newAcft}`)
         if (fs.existsSync(`./profiles/${newAcft}.js`)) {
             profile = require(`./profiles/${newAcft}`);
-            console.log(`profile changed to ${newAcft}`);
+            console.log(`now using ${newAcft} for profile`);
         }
         else {
-            profile = require('./profiles/default.js');
-            console.log(`no profile found for ${newAcft}, changing to default`);
+            if (!usingDefault) {
+                profile = require('./profiles/default.js');
+            }
+            console.log(`no profile found for ${newAcft}, using default`);
         }
         profile.drNvar.forEach((e, i) => {
             if (e.dref) udpClient.subscribe(e.dref, i + 4, e.freq);
