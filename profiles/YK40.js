@@ -1,22 +1,26 @@
-// works for B-29, c750, c-47, BAe 146, BE9L, EVOT, L410, AMF0(Metroliner), E55P, PC12, MD11, MD88, S76, VIPJ, A306, EA50, JS32, c404, F504(F50), SF34, 
+
 
 module.exports = {
     drNvar: [{
         value: 0,
-        dref: 'sim/cockpit2/annunciators/gear_unsafe',
+        dref: 'sim/aircraft/parts/acf_gear_deploy[0]',
         freq: 1,
     }, {
         value: 0,
-        dref: 'sim/cockpit/switches/gear_handle_status',
+        dref: 'sim/aircraft/parts/acf_gear_deploy[1]',
         freq: 1,
-    }, 
+    }, {
+        value: 0,
+        dref: 'sim/aircraft/parts/acf_gear_deploy[2]',
+        freq: 1,
+    },
     {
         value: 3,
         process: (profile) => {
-            if (profile.drNvar[0].value) {
-                return 2;
+            if (profile.drNvar[0].value === profile.drNvar[1].value && profile.drNvar[1].value === profile.drNvar[2].value) {
+                return profile.drNvar[0].value;
             } else {
-                return profile.drNvar[1].value;
+                return 2;
             }
         },
         execute: (profile, vjDevice, wsClient, drNvar) => {

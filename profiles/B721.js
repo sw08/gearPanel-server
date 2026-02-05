@@ -54,7 +54,7 @@ module.exports = {
                 wsClient.gearPanel.ws.send("OFF&UNLCKD");
             } else {
                 if (profile.drNvar[6].value === 1) wsClient.gearPanel.ws.send("UP&LOCKED");
-                else if (profile.drNvar[6].value === 0) wsClient.gearPanel.ws.send("OFF&LOCKED")
+                else if (profile.drNvar[6].value === 0) wsClient.gearPanel.ws.send("")
             }
         },
         device: 'gearPanel',

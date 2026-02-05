@@ -4,32 +4,32 @@ module.exports = {
     drNvar: [{
         value: 0,
         dref: 'laminar/B738/annunciator/right_gear_transit',
-        process: (profile, value) => value >= 0.5,
+        process: (profile, value) => value >= 0.2,
         freq:1,
     },{
         value: 0,
         dref: 'laminar/B738/annunciator/left_gear_transit',
-        process: (profile, value) => value >= 0.5,
+        process: (profile, value) => value >= 0.2,
         freq:1,
     },{
         value: 0,
         dref: 'laminar/B738/annunciator/nose_gear_transit',
-        process: (profile, value) => value >= 0.5,
+        process: (profile, value) => value >= 0.2,
         freq:1,
     },{
         value: 0,
         dref: 'laminar/B738/annunciator/right_gear_safe',
-        process: (profile, value) => value >= 0.5,
+        process: (profile, value) => value >= 0.2,
         freq:1,
     },{
         value: 0,
         dref: 'laminar/B738/annunciator/left_gear_safe',
-        process: (profile, value) => value >= 0.5,
+        process: (profile, value) => value >= 0.2,
         freq:1,
     },{
         value: 0,
         dref: 'laminar/B738/annunciator/nose_gear_safe',
-        process: (profile, value) => value >= 0.5,
+        process: (profile, value) => value >= 0.2,
         freq:1,
     },{
         value: 1,
@@ -54,14 +54,13 @@ module.exports = {
                 wsClient.gearPanel.ws.send("OFF&UNLCKD");
             } else {
                 if (profile.drNvar[6].value === -1) wsClient.gearPanel.ws.send("UP&LOCKED");
-                else if (profile.drNvar[6].value === 0) wsClient.gearPanel.ws.send("OFF&LOCKED")
+                else if (profile.drNvar[6].value === 0) wsClient.gearPanel.ws.send("")
             }
         },
         device: 'gearPanel',
         counter: 10,
         n: 0
     }
-
     ],
     command: [
         'sim/flight_controls/landing_gear_off',

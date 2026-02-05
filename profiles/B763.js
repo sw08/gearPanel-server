@@ -1,35 +1,32 @@
-// works for B-29, c750, c-47, BAe 146, BE9L, EVOT, L410, AMF0(Metroliner), E55P, PC12, MD11, MD88, S76, VIPJ, A306, EA50, JS32, c404, F504(F50), SF34, 
+
 
 module.exports = {
     drNvar: [{
         value: 0,
         dref: 'sim/cockpit2/annunciators/gear_unsafe',
-        freq: 1,
-    }, {
+        // execute: (profile, vjDevice, )
+        freq:3,
+    },{
         value: 0,
         dref: 'sim/cockpit/switches/gear_handle_status',
-        freq: 1,
-    }, 
+        freq:3,
+    },
     {
-        value: 3,
+        value: -1,
         process: (profile) => {
-            if (profile.drNvar[0].value) {
-                return 2;
-            } else {
-                return profile.drNvar[1].value;
-            }
+            return profile.drNvar[0].value === 1 ? 1 : profile.drNvar[1].value * 2;
         },
         execute: (profile, vjDevice, wsClient, drNvar) => {
-            // console.log(drNvar.value)
+            // console.log(profile.drNvar[0].value)
             switch (drNvar.value) {
                 case 0:
                     wsClient.gearPanel.ws.send("");
                     break;
                 case 1:
-                    wsClient.gearPanel.ws.send("DN&LOCKED");
+                    wsClient.gearPanel.ws.send("IN TRANSIT");
                     break;
                 case 2:
-                    wsClient.gearPanel.ws.send("IN TRANSIT");
+                    wsClient.gearPanel.ws.send("DN&LOCKED");
                     break;
             }
         },
@@ -41,7 +38,7 @@ module.exports = {
     ],
     command: [
         null,
-        'sim/flight_controls/landing_gear_up',
-        'sim/flight_controls/landing_gear_down',
+        [['sim/flight_controls/landing_gear_up', (profile) => profile.drNvar[1].value === 1]],
+        [['sim/flight_controls/landing_gear_down', (profile) => profile.drNvar[1].value === 0]]
     ]
 }

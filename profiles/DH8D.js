@@ -1,13 +1,13 @@
-// works for B-29, c750, c-47, BAe 146, BE9L, EVOT, L410, AMF0(Metroliner), E55P, PC12, MD11, MD88, S76, VIPJ, A306, EA50, JS32, c404, F504(F50), SF34, 
+
 
 module.exports = {
     drNvar: [{
         value: 0,
-        dref: 'sim/cockpit2/annunciators/gear_unsafe',
+        dref: 'FJS/Q4XP/Annunciators/GearHandle_Lit[0]',
         freq: 1,
     }, {
         value: 0,
-        dref: 'sim/cockpit/switches/gear_handle_status',
+        dref: 'FJS/Q4XP/Manips/GearDeployHandle_Ctl[0]',
         freq: 1,
     }, 
     {
@@ -26,7 +26,7 @@ module.exports = {
                     wsClient.gearPanel.ws.send("");
                     break;
                 case 1:
-                    wsClient.gearPanel.ws.send("DN&LOCKED");
+                    wsClient.gearPanel.ws.send("DOWN&GREEN");
                     break;
                 case 2:
                     wsClient.gearPanel.ws.send("IN TRANSIT");
