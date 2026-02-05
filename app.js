@@ -14,6 +14,9 @@ let lastAcft = "    ";
 let newAcft = "    ";
 let profile = require(`./profiles/default.js`);
 let usingDefault = false;
+let xpver = 0;
+let lastProfile = '';
+let newProfile = '';
 
 wsClient.gearPanel = {
     connected: false
@@ -36,12 +39,17 @@ wsClient.on('connection', (ws, req) => {
                         if (typeof profile.command[message[i]] === 'string') { // single command without condition
                             udpClient.executeCommand(profile.command[message[i]]);
                         } else { // single command / possibly multiple commands with condition.
-                            
+
                             profile.command[message[i]].every(x => {
-                                if (x[1](profile)) {
-                                    udpClient.executeCommand(x[0]);
-                                    return false;
+                                if (typeof x === 'object') {
+                                    if (x[1](profile)) {
+                                        udpClient.executeCommand(x[0]);
+                                        return false;
+                                    } else {
+                                        return true;
+                                    }
                                 } else {
+                                    udpClient.executeCommand(x);
                                     return true;
                                 }
                             })
@@ -55,6 +63,10 @@ wsClient.on('connection', (ws, req) => {
 // wsClient.on('close', (ws, ))
 
 udpClient.onMessage = (data) => {
+
+    if (data[4]) {
+        xpver = Math.floor(data[4] / 10000);
+    }
     newAcft = lastAcft;
     for (let i = 0; i < 4; i++) {
         if (data[i]) {
@@ -63,25 +75,34 @@ udpClient.onMessage = (data) => {
     }
     if (newAcft !== lastAcft) {
         lastAcft = newAcft;
-        udpClient.subscribed.forEach(x => {
-            if (x.index > 3 && x.dref) {
-                udpClient.unsubscribe(x.dref, x.index);
-            }
-        });
         console.log(`new acft: ${newAcft}`)
-        if (fs.existsSync(`./profiles/${newAcft}.js`)) {
-            profile = require(`./profiles/${newAcft}`);
-            console.log(`now using ${newAcft} for profile`);
+
+        if (fs.existsSync(`./profiles/${newAcft}xp${xpver}.js`)) {
+            newProfile = `./profiles/${newAcft}xp${xpver}`;
+            console.log(`using profile found for ${newAcft}/${xpver}`);
+        } else if (fs.existsSync(`./profiles/${newAcft}.js`)) {
+            newProfile = `./profiles/${newAcft}`;
+            console.log(`using profile found for ${newAcft}`);
+        } else {
+            newProfile = './profiles/default';
+            console.log(`no profile found for ${newAcft}/${xpver}, using default`);
         }
-        else {
-            if (!usingDefault) {
-                profile = require('./profiles/default.js');
-            }
-            console.log(`no profile found for ${newAcft}, using default`);
+        if (lastProfile !== newProfile) {
+            udpClient.subscribed.forEach(x => {
+                if (x.index > 3 && x.dref) {
+                    udpClient.unsubscribe(x.dref, x.index);
+                }
+            });
+            profile = require(newProfile);
+            profile.drNvar.forEach((e, i) => {
+                if (e.dref) udpClient.subscribe(e.dref, i + 5, e.freq);
+            });
+            if (lastProfile === '') console.log(`loaded profile ${newProfile}`);
+            else console.log(`reloaded changed profile to ${lastProfile} to ${newProfile}`);
+            lastProfile = newProfile;
+        } else {
+            console.log('no profile change, continuing');
         }
-        profile.drNvar.forEach((e, i) => {
-            if (e.dref) udpClient.subscribe(e.dref, i + 4, e.freq);
-        });
     }
     if (newAcft === "    ") return; // not ready to process -> profile is not loaded.
 
@@ -90,12 +111,12 @@ udpClient.onMessage = (data) => {
         if (e.dref && typeof data[i + 4] === 'undefined') return;
         if (e.process) {
             if (e.dref) {
-                newValue = e.process(profile, data[i + 4]);
+                newValue = e.process(profile, data[i + 5]);
             } else {
                 newValue = e.process(profile);
             }
         } else {
-            newValue = data[i + 4];
+            newValue = data[i + 5];
         }
         if (profile.drNvar[i].value != newValue) { // value is changed.
             profile.drNvar[i].value = newValue;
@@ -120,6 +141,7 @@ udpClient.init().then(() => {
     udpClient.subscribe('sim/aircraft/view/acf_ICAO[1]', 1, 1);
     udpClient.subscribe('sim/aircraft/view/acf_ICAO[2]', 2, 1);
     udpClient.subscribe('sim/aircraft/view/acf_ICAO[3]', 3, 1);
+    udpClient.subscribe('sim/version/xplane_internal_version', 4, 1);
 })
 
 
