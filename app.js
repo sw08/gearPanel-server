@@ -13,7 +13,6 @@ function replaceCharAt(text, i, newChar) { return text.substring(0, i) + newChar
 let lastAcft = "    ";
 let newAcft = "    ";
 let profile = require(`./profiles/default.js`);
-let usingDefault = false;
 let xpver = 0;
 let lastProfile = '';
 let newProfile = '';
@@ -66,9 +65,11 @@ udpClient.onMessage = (data) => {
 
     if (data[4]) {
         xpver = Math.floor(data[4] / 10000);
+        udpClient.unsubscribe('sim/version/xplane_internal_version', 4);
     }
+    if (xpver === 0) return;
     newAcft = lastAcft;
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i <= 3; i++) {
         if (data[i]) {
             newAcft = replaceCharAt(newAcft, i, String.fromCharCode(data[i]))
         }
@@ -89,7 +90,7 @@ udpClient.onMessage = (data) => {
         }
         if (lastProfile !== newProfile) {
             udpClient.subscribed.forEach(x => {
-                if (x.index > 3 && x.dref) {
+                if (x.index >= 5 && x.dref) {
                     udpClient.unsubscribe(x.dref, x.index);
                 }
             });
@@ -108,7 +109,7 @@ udpClient.onMessage = (data) => {
 
     profile.drNvar.forEach((e, i) => {
         let newValue;
-        if (e.dref && typeof data[i + 4] === 'undefined') return;
+        if (e.dref && typeof data[i + 5] === 'undefined') return;
         if (e.process) {
             if (e.dref) {
                 newValue = e.process(profile, data[i + 5]);
