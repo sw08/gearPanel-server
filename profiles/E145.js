@@ -11,11 +11,12 @@ module.exports = {
         freq: 1,
     }, 
     {
-        value: 3,
+        value: -1,
         process: (profile) => {
+            // console.log(profile.drNvar[0].value, profile.drNvar[1].value, profile.drNvar[2].value)
             if (profile.drNvar[0].value) {
                 return 2;
-            } else if (profile.drNvar[2].value === 3) {
+            } else if (profile.drNvar[2].value === 3 || (profile.drNvar[2].value === -1 && !profile.drNvar[1].value )) {
                 return 3;
             } else {
                 return profile.drNvar[1].value;

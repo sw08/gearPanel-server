@@ -15,13 +15,13 @@ module.exports = {
         freq: 1,
     },
     {
-        value: 3,
+        value: -1,
         process: (profile) => {
             if (profile.drNvar[0].value === profile.drNvar[1].value && profile.drNvar[1].value === profile.drNvar[2].value) {
                 if (profile.drNvar[0].value === 1) {
                     return 1;
                 } else {
-                    if (profile.drNvar[3].value === 3) {
+                    if (profile.drNvar[3].value === 3 || (profile.drNvar[3].value === -1 && !profile.drNvar[0].value)) {
                         return 3;
                     } else {
                         return 0;
