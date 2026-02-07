@@ -3,4 +3,4 @@ module.exports = {
   XPLANE_UDP_SRC_PORT: 49001,
   XPLANE_UDP_HOST: '127.0.0.1',
   WS_SERVER_PORT: 5000
-}
+};

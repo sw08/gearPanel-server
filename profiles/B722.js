@@ -1,1 +1,1 @@
-module.exports = require('./B721')
+module.exports = require('./B721');
