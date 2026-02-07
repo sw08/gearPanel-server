@@ -20,14 +20,23 @@ let newProfile = '';
 wsClient.gearPanel = {
     connected: false
 };
+
+const deviceNames = ['gearPanel', 'miscPanel']
+
 wsClient.on('connection', (ws, req) => {
     ws.on('message', (message) => {
         switch (message[0]) {
             case 0:
-                if (message[1] === 1) {
-                    wsClient.gearPanel.connected = true;
-                    wsClient.gearPanel.ws = ws;
-                    console.log('gearPanel connected')
+                if (message[1] < deviceNames.length + 1) {
+                    let device = deviceNames[message[1] - 1];
+                    wsClient[device].connected = true;
+                    wsClient[device].ws = ws;
+                    wsClient[device].ws.on('close', () => {
+                        wsClient[device].gearPanel.ws = undefined;
+                        wsClient[device].connected = false;
+                        console.log(`${device} disconnected`);
+                    });
+                    console.log(`${device} connected`);
                 } else {
                     ws.close();
                 }
@@ -37,9 +46,8 @@ wsClient.on('connection', (ws, req) => {
                     if (profile.command[message[i]]) {
                         if (typeof profile.command[message[i]] === 'string') { // single command without condition
                             udpClient.executeCommand(profile.command[message[i]]);
-                        } else { // single command / possibly multiple commands with condition.
-
-                            profile.command[message[i]].every(x => {
+                        } else {
+                            profile.command[message[i]].every(x => {  // single (or possibly multiple) command with condition.
                                 if (typeof x === 'object') {
                                     if (x[1](profile)) {
                                         udpClient.executeCommand(x[0]);
@@ -57,12 +65,10 @@ wsClient.on('connection', (ws, req) => {
                 }
                 break;
         }
-    })
+    });
 });
-// wsClient.on('close', (ws, ))
 
 udpClient.onMessage = (data) => {
-
     if (data[4]) {
         xpver = Math.floor(data[4] / 10000);
         udpClient.unsubscribe('sim/version/xplane_internal_version', 4);
@@ -88,6 +94,7 @@ udpClient.onMessage = (data) => {
             newProfile = './profiles/default';
             console.log(`no profile found for ${newAcft}/${xpver}, using default`);
         }
+
         if (lastProfile !== newProfile) {
             udpClient.subscribed.forEach(x => {
                 if (x.index >= 5 && x.dref) {
@@ -106,7 +113,7 @@ udpClient.onMessage = (data) => {
         }
     }
     if (newAcft === "    ") return; // not ready to process -> profile is not loaded.
-
+    
     profile.drNvar.forEach((e, i) => {
         let newValue;
         if (e.dref && typeof data[i + 5] === 'undefined') return;
