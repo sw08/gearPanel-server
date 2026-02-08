@@ -154,7 +154,7 @@ function setupEventHandlers () {
           }
         }
       }
-      if (profile.drNvar[i].n >= profile.drNvar[i].counter) {
+      if (profile.drNvar[i].execute && profile.drNvar[i].n >= profile.drNvar[i].counter) {
         if (!profile.drNvar[i].device || commClient[profile.drNvar[i].device].connected) {
           profile.drNvar[i].execute(profile, device, commClient, profile.drNvar[i]);
         }
