@@ -1,0 +1,54 @@
+gearPanel:
+
+commands
+- GEAR OFF
+- GEAR UP
+- GEAR DOWN
+
+-------------------
+
+miscPanel:
+
+LED
+- master caution
+- NAV1
+- mnm more than 1000 (green)
+- NAV2
+- master warning
+- GPS
+- send in one whole byte, with first two bit of 11(for separation with 7-segment)
+
+7-segment 
+- first digit: 00(first two bit) + desired number
+- second digit: 01(first two bit) + desired number
+- third digit: 10(first two bit) + desired number
+
+commands
+- 0: rwy toff on
+- 1: nose off->taxi
+- 2: nose to->taxi
+- 3: 2->1
+- 4: nav off->1
+- 5: beacon on
+- 6: ldg retract -> off
+- 7: ldg on -> off
+- 8: encoder CCW
+- 9: encoder CW
+- 10: encoder btn rls
+- 12: master caution rls
+- 13: master warning rls
+- 14: strobe on -> auto
+- 15: strobe off-> auto
+- 16: rwy toff OFF
+- 17: nose taxi->off
+- 18: nose taxi->to
+- 19: 1->2
+- 20: 1->off
+- 21: beacon off
+- 22: ldg off -> retract
+- 23: ldg off -> on
+- 26: encoder btn press
+- 28: master caution press
+- 29: master warning press
+- 30: strobe auto -> on
+- 31: strobe auto -> off

@@ -43,27 +43,25 @@ module.exports = {
     process: (profile) => {
       return (2 * profile.drNvar[0].value * profile.drNvar[1].value * profile.drNvar[2].value) + (profile.drNvar[3].value * profile.drNvar[4].value * profile.drNvar[5].value);
     },
-    execute: (profile, vjDevice, wsClient, drNvar) => {
+    execute: (profile, vjDevice, commClient, drNvar) => {
       // console.log(drNvar.value)
       switch (drNvar.value) {
         case 1:
-          wsClient.gearPanel.ws.send('DN&LOCKED');
+          commClient.gearPanel.send('DN&LOCKED');
           break;
         case 2:
-          wsClient.gearPanel.ws.send('IN TRANSIT');
+          commClient.gearPanel.send('IN TRANSIT');
           break;
         case 3:
-          wsClient.gearPanel.ws.send('OFF&UNLCKD');
+          commClient.gearPanel.send('OFF&UNLCKD');
           break;
         default:
-          if (profile.drNvar[6].value === -1) wsClient.gearPanel.ws.send('UP&LOCKED');
-          else if (profile.drNvar[6].value === 0) wsClient.gearPanel.ws.send('');
+          if (profile.drNvar[6].value === -1) commClient.gearPanel.send('UP&LOCKED');
+          else if (profile.drNvar[6].value === 0) commClient.gearPanel.send('');
           break;
       }
     },
-    device: 'gearPanel',
-    counter: 10,
-    n: 0
+    device: 'gearPanel'
   }
   ],
   command: [

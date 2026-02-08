@@ -30,13 +30,13 @@ module.exports = {
         return 2;
       }
     },
-    execute: (profile, vjDevice, wsClient, drNvar) => {
-      // console.log(drNvar.value)
+    execute: (profile, vjDevice, commClient, drNvar) => {
+      // console.log(commClient)
       switch (drNvar.value) {
         case 0:
-          wsClient.gearPanel.ws.send('UP');
+          commClient.gearPanel.send('UP');
           profile.drNvar[3].delay = setTimeout(() => {
-            wsClient.gearPanel.ws.send('');
+            commClient.gearPanel.send('');
             profile.drNvar[3].value = 3;
             profile.drNvar[3].delay = undefined;
           }, 10000);
@@ -44,23 +44,21 @@ module.exports = {
         case 1:
           clearTimeout(profile.drNvar[3].delay);
           profile.drNvar[3].delay = undefined;
-          wsClient.gearPanel.ws.send('DOWN&GREEN');
+          commClient.gearPanel.send('DOWN&GREEN');
           break;
         case 2:
           clearTimeout(profile.drNvar[3].delay);
           profile.drNvar[3].delay = undefined;
-          wsClient.gearPanel.ws.send('IN TRANSIT');
+          commClient.gearPanel.send('IN TRANSIT');
           break;
         case 3:
           clearTimeout(profile.drNvar[3].delay);
           profile.drNvar[3].delay = undefined;
-          wsClient.gearPanel.ws.send('');
+          commClient.gearPanel.send('');
           break;
       }
     },
-    device: 'gearPanel',
-    counter: 10,
-    n: 0
+    device: 'gearPanel'
   }
 
   ],

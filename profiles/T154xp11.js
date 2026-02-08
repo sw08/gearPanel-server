@@ -41,19 +41,19 @@ module.exports = {
           return profile.drNvar[6].value + 1;
         }
       },
-      execute: (profile, vjDevice, wsClient, drNvar) => {
+      execute: (profile, vjDevice, commClient, drNvar) => {
         switch (drNvar.value) {
           case 0:
-            wsClient.gearPanel.ws.send('UP&LOCKED');
+            commClient.gearPanel.send('UP&LOCKED');
             break;
           case 1:
-            wsClient.gearPanel.ws.send('');
+            commClient.gearPanel.send('');
             break;
           case 2:
-            wsClient.gearPanel.ws.send('DN&LOCKED');
+            commClient.gearPanel.send('DN&LOCKED');
             break;
           case 3:
-            wsClient.gearPanel.ws.send('IN TRANSIT');
+            commClient.gearPanel.send('IN TRANSIT');
             break;
         }
       },
