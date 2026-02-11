@@ -14,8 +14,8 @@ LED
 - mnm more than 1000 (green)
 - master warning
 - master caution
-- NAV2
 - NAV1
+- NAV2
 - send in one whole byte, with first two bit of 11(for separation with 7-segment)
 
 7-segment 
