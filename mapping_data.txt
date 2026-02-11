@@ -10,12 +10,12 @@ commands
 miscPanel:
 
 LED
-- master caution
-- NAV1
-- mnm more than 1000 (green)
-- NAV2
-- master warning
 - GPS
+- mnm more than 1000 (green)
+- master warning
+- master caution
+- NAV2
+- NAV1
 - send in one whole byte, with first two bit of 11(for separation with 7-segment)
 
 7-segment 
