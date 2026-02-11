@@ -13,7 +13,7 @@ let device = null;
 let udpClient = null;
 let wsClient = null;
 
-function replaceCharAt(text, i, newChar) { return text.substring(0, i) + newChar + text.substring(i + 1); }
+function replaceCharAt (text, i, newChar) { return text.substring(0, i) + newChar + text.substring(i + 1); }
 
 let lastAcft = '    ';
 let newAcft = '    ';
@@ -30,7 +30,7 @@ deviceNames.forEach(x => {
   };
 });
 
-async function initializeApp() {
+async function initializeApp () {
   const ports = await SerialPort.list();
 
   const foundPort = ports.find(p => p.serialNumber === config.MISC_PANEL_SERIAL_NUMBER);
@@ -49,7 +49,7 @@ async function initializeApp() {
       console.log('misc panel disconnected');
       commClient.miscPanel = { connected: false };
     });
-    messageHandler(miscPanel, [0, 2], 3);
+    messageHandler(miscPanel, [0, 2], 'miscPanel');
     parser.on('data', (data) => {
       const packet = [1];
       for (let i = 0; i < 4; i++) {
@@ -60,7 +60,7 @@ async function initializeApp() {
         }
       }
       if (packet.length > 1) {
-        messageHandler(miscPanel, packet, 3);
+        messageHandler(miscPanel, packet, 'miscPanel');
       }
     });
   }
@@ -73,10 +73,8 @@ async function initializeApp() {
   });
   console.log('initialized');
 
-
-
   wsClient.on('connection', (ws, req) => {
-    ws.on('message', (message) => messageHandler(ws, message, 0));
+    ws.on('message', (message) => messageHandler(ws, message, 'gearPanel'));
   });
 
   udpClient.onMessage = (data) => {
@@ -114,12 +112,20 @@ async function initializeApp() {
           }
         });
         profile = require(newProfile);
+        profile.drNvarNameMap = {};
         profile.drNvar.forEach((e, i) => {
           e.n = 0;
           e.last = e.value;
           if (!e.counter) e.counter = e.freq * 10;
           if (e.dref) udpClient.subscribe(e.dref, i + 5, e.freq);
+          profile.drNvarNameMap[e.name || `drNvar${i}`] = i;
         });
+        profile.getDrNvar = (name) => {
+          return profile.drNvar[profile.drNvarNameMap[name]];
+        };
+        profile.setDrNvar = (name, value) => {
+          profile.drNvar[profile.drNvarNameMap[name]].value = value;
+        };
         if (lastProfile === '') console.log(`loaded profile ${newProfile}`);
         else console.log(`reloaded changed profile to ${lastProfile} to ${newProfile}`);
         lastProfile = newProfile;
@@ -139,7 +145,8 @@ async function initializeApp() {
           newValue = e.process(profile);
         }
       } else {
-        newValue = data[i + 5];
+        if (e.dref) newValue = data[i + 5];
+        else newValue = e.value;
       }
       if (profile.drNvar[i].value !== newValue) {
         profile.drNvar[i].last = profile.drNvar[i].value;
@@ -179,7 +186,7 @@ async function initializeApp() {
 
 initializeApp();
 
-function messageHandler(comm, message, offset) {
+function messageHandler (comm, message, device) {
   let cmd;
   switch (message[0]) {
     case 0:
@@ -200,7 +207,7 @@ function messageHandler(comm, message, offset) {
       break;
     case 1:
       for (let i = 1; i < message.length; i++) {
-        cmd = profile.command[message[i] + offset];
+        cmd = profile.command[device][message[i].toString()];
         if (cmd) cmd(profile, udpClient);
       }
       break;
