@@ -122,7 +122,7 @@ function setupEventHandlers () {
         profile = require(newProfile);
         profile.drNvar.forEach((e, i) => {
           e.n = 0;
-          if (!e.counter) e.counter = 10;
+          e.last = e.value;
           if (e.dref) udpClient.subscribe(e.dref, i + 5, e.freq);
         });
         if (lastProfile === '') console.log(`loaded profile ${newProfile}`);
@@ -147,6 +147,7 @@ function setupEventHandlers () {
         newValue = data[i + 5];
       }
       if (profile.drNvar[i].value !== newValue) {
+        profile.drNvar[i].last = profile.drNvar[i].value;
         profile.drNvar[i].value = newValue;
         if (profile.drNvar[i].execute) {
           if (!profile.drNvar[i].device || commClient[profile.drNvar[i].device].connected) {
