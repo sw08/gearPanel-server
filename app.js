@@ -13,7 +13,7 @@ let device = null;
 let udpClient = null;
 let wsClient = null;
 
-function replaceCharAt (text, i, newChar) { return text.substring(0, i) + newChar + text.substring(i + 1); }
+function replaceCharAt(text, i, newChar) { return text.substring(0, i) + newChar + text.substring(i + 1); }
 
 let lastAcft = '    ';
 let newAcft = '    ';
@@ -30,7 +30,7 @@ deviceNames.forEach(x => {
   };
 });
 
-async function initializeApp () {
+async function initializeApp() {
   const ports = await SerialPort.list();
 
   const foundPort = ports.find(p => p.serialNumber === config.MISC_PANEL_SERIAL_NUMBER);
@@ -45,6 +45,24 @@ async function initializeApp () {
     commClient.miscPanel = miscPanel;
     commClient.miscPanel.connected = true;
     parser = miscPanel.pipe(new ByteLengthParser({ length: 4 }));
+    miscPanel.on('close', () => {
+      console.log('misc panel disconnected');
+      commClient.miscPanel = { connected: false };
+    });
+    messageHandler(miscPanel, [0, 2], 3);
+    parser.on('data', (data) => {
+      const packet = [1];
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 8; j++) {
+          if ((data[i] << j) & 0b10000000) {
+            packet.push(i * 8 + j);
+          }
+        }
+      }
+      if (packet.length > 1) {
+        messageHandler(miscPanel, packet, 3);
+      }
+    });
   }
 
   device = vj.vJoyDevice.create(2);
@@ -55,31 +73,7 @@ async function initializeApp () {
   });
   console.log('initialized');
 
-  setupEventHandlers();
-}
 
-function setupEventHandlers () {
-  miscPanel.on('close', () => {
-    console.log('misc panel disconnected');
-    commClient.miscPanel = { connected: false };
-  });
-
-  messageHandler(miscPanel, [0, 2], 3);
-
-  parser.on('data', (data) => {
-    const packet = [1];
-    for (let i = 0; i < 4; i++) {
-      for (let j = 0; j < 8; j++) {
-        if ((data[i] << j) & 0b10000000) {
-          packet.push(i * 8 + j);
-        }
-      }
-    }
-    if (packet.length > 1) {
-      messageHandler(miscPanel, packet, 3);
-      // console.log(packet.slice(1))
-    }
-  });
 
   wsClient.on('connection', (ws, req) => {
     ws.on('message', (message) => messageHandler(ws, message, 0));
@@ -185,7 +179,7 @@ function setupEventHandlers () {
 
 initializeApp();
 
-function messageHandler (comm, message, offset) {
+function messageHandler(comm, message, offset) {
   let cmd;
   switch (message[0]) {
     case 0:
