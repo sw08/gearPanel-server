@@ -123,6 +123,7 @@ function setupEventHandlers () {
         profile.drNvar.forEach((e, i) => {
           e.n = 0;
           e.last = e.value;
+          if (!e.counter) e.counter = e.freq * 10;
           if (e.dref) udpClient.subscribe(e.dref, i + 5, e.freq);
         });
         if (lastProfile === '') console.log(`loaded profile ${newProfile}`);
