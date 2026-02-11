@@ -39,12 +39,19 @@ module.exports = {
   }
 
   ],
-  command: [
-    [
-      ['SCS/t134/commands/gear_hndl_up', profile => profile.drNvar[1].value === 2],
-      ['SCS/t134/commands/gear_hndl_down', profile => profile.drNvar[1].value === 0]
-    ],
-    ['SCS/t134/commands/gear_hndl_up', 'SCS/t134/commands/gear_hndl_up'],
-    ['SCS/t134/commands/gear_hndl_down', 'SCS/t134/commands/gear_hndl_down']
-  ]
+  command: {
+    1: (profile, udpClient) => {
+      udpClient.executeCommand('SCS/t134/commands/gear_hndl_up');
+    },
+    2: (profile, udpClient) => {
+      udpClient.executeCommand('SCS/t134/commands/gear_hndl_down');
+    },
+    0: (profile, udpClient) => {
+      if (profile.drNvar[1].value === 2) {
+        udpClient.executeCommand('SCS/t134/commands/gear_hndl_toggle_up');
+      } else if (profile.drNvar[1].value === 0) {
+        udpClient.executeCommand('SCS/t134/commands/gear_hndl_toggle_down');
+      }
+    }
+  }
 };

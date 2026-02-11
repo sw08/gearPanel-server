@@ -36,9 +36,12 @@ module.exports = {
     device: 'gearPanel'
   }
   ],
-  command: [
-    null,
-    'sim/flight_controls/landing_gear_up',
-    'sim/flight_controls/landing_gear_down'
-  ]
+  command: {
+    1: (profile, udpClient) => {
+      udpClient.executeCommand('sim/flight_controls/landing_gear_up');
+    },
+    2: (profile, udpClient) => {
+      udpClient.executeCommand('sim/flight_controls/landing_gear_down');
+    }
+  }
 };

@@ -33,9 +33,17 @@ module.exports = {
   }
 
   ],
-  command: [
-    null,
-    [['sim/flight_controls/landing_gear_up', (profile) => profile.drNvar[1].value === 1]],
-    [['sim/flight_controls/landing_gear_down', (profile) => profile.drNvar[1].value === 0]]
-  ]
+  command: {
+    1: (profile, udpClient) => {
+      if (profile.drNvar[1].value === 1) {
+        udpClient.executeCommand('sim/flight_controls/landing_gear_up');
+      }
+    },
+
+    2: (profile, udpClient) => {
+      if (profile.drNvar[1].value === 0) {
+        udpClient.executeCommand('sim/flight_controls/landing_gear_down');
+      }
+    }
+  }
 };

@@ -207,25 +207,7 @@ function messageHandler (comm, message, offset) {
     case 1:
       for (let i = 1; i < message.length; i++) {
         cmd = profile.command[message[i] + offset];
-        if (cmd) {
-          if (typeof cmd === 'string') { // single command without condition
-            udpClient.executeCommand(cmd);
-          } else {
-            cmd.every(x => { // single (or possibly multiple) command with condition.
-              if (typeof x === 'object') {
-                if (x[1](profile)) {
-                  udpClient.executeCommand(x[0]);
-                  return false;
-                } else {
-                  return true;
-                }
-              } else {
-                udpClient.executeCommand(x);
-                return true;
-              }
-            });
-          }
-        }
+        if (cmd) cmd(profile, udpClient);
       }
       break;
   }
